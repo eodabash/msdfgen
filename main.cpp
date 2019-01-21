@@ -371,6 +371,7 @@ int main(int argc, const char * const *argv) {
     } rangeMode = RANGE_PX;
     double range = 1;
     double pxRange = 2;
+    unsigned fontSize = 0;
     Vector2 translate;
     Vector2 scale = 1;
     bool scaleSpecified = false;
@@ -490,6 +491,15 @@ int main(int argc, const char * const *argv) {
                 ABORT("Invalid range argument. Use -pxrange <range> with a positive real number.");
             rangeMode = RANGE_PX;
             pxRange = r;
+            argPos += 2;
+            continue;
+        }
+        ARG_CASE("-fontSize", 1) {
+            unsigned size;
+            if (!parseUnsigned(size, argv[argPos + 1]))
+                ABORT("Invalid range argument. Use -pxrange <range> with a positive real number.");
+            rangeMode = RANGE_PX;
+            fontSize = size;
             argPos += 2;
             continue;
         }
@@ -628,7 +638,7 @@ int main(int argc, const char * const *argv) {
                 ABORT("No character specified! Use -font <file.ttf/otf> <character code>. Character code can be a number (65, 0x41), or a character in apostrophes ('A').");
             FreetypeHandle *ft = initializeFreetype();
             if (!ft) return -1;
-            FontHandle *font = loadFont(ft, input);
+            FontHandle *font = loadFont(ft, input, fontSize);
             if (!font) {
                 deinitializeFreetype(ft);
                 ABORT("Failed to load font file.");

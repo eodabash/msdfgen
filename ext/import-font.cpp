@@ -18,14 +18,14 @@ namespace msdfgen {
 class FreetypeHandle {
     friend FreetypeHandle * initializeFreetype();
     friend void deinitializeFreetype(FreetypeHandle *library);
-    friend FontHandle * loadFont(FreetypeHandle *library, const char *filename);
+    friend FontHandle * loadFont(FreetypeHandle *library, const char *filename, uint32_t size);
 
     FT_Library library;
 
 };
 
 class FontHandle {
-    friend FontHandle * loadFont(FreetypeHandle *library, const char *filename);
+    friend FontHandle * loadFont(FreetypeHandle *library, const char *filename, uint32_t size);
     friend void destroyFont(FontHandle *font);
     friend bool getFontScale(double &output, FontHandle *font);
     friend bool getFontWhitespaceWidth(double &spaceAdvance, double &tabAdvance, FontHandle *font);
@@ -89,7 +89,7 @@ void deinitializeFreetype(FreetypeHandle *library) {
     delete library;
 }
 
-FontHandle * loadFont(FreetypeHandle *library, const char *filename) {
+FontHandle * loadFont(FreetypeHandle *library, const char *filename, uint32_t size) {
     if (!library)
         return NULL;
     FontHandle *handle = new FontHandle;
@@ -98,6 +98,9 @@ FontHandle * loadFont(FreetypeHandle *library, const char *filename) {
         delete handle;
         return NULL;
     }
+
+    error = FT_Set_Pixel_Sizes(handle->face, 0, size);
+
     return handle;
 }
 
@@ -112,11 +115,11 @@ bool getFontScale(double &output, FontHandle *font) {
 }
 
 bool getFontWhitespaceWidth(double &spaceAdvance, double &tabAdvance, FontHandle *font) {
-    FT_Error error = FT_Load_Char(font->face, ' ', FT_LOAD_NO_SCALE);
+    FT_Error error = FT_Load_Char(font->face, ' ', FT_LOAD_DEFAULT);
     if (error)
         return false;
     spaceAdvance = font->face->glyph->advance.x/64.;
-    error = FT_Load_Char(font->face, '\t', FT_LOAD_NO_SCALE);
+    error = FT_Load_Char(font->face, '\t', FT_LOAD_DEFAULT);
     if (error)
         return false;
     tabAdvance = font->face->glyph->advance.x/64.;
@@ -126,7 +129,7 @@ bool getFontWhitespaceWidth(double &spaceAdvance, double &tabAdvance, FontHandle
 bool loadGlyph(Shape &output, FontHandle *font, int unicode, double *advance) {
     if (!font)
         return false;
-    FT_Error error = FT_Load_Char(font->face, unicode, FT_LOAD_NO_SCALE);
+    FT_Error error = FT_Load_Char(font->face, unicode, FT_LOAD_DEFAULT);
     if (error)
         return false;
     output.contours.clear();

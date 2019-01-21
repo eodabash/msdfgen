@@ -14,7 +14,7 @@ FreetypeHandle * initializeFreetype();
 /// Deinitializes the FreeType library
 void deinitializeFreetype(FreetypeHandle *library);
 /// Loads a font file and returns its handle
-FontHandle * loadFont(FreetypeHandle *library, const char *filename);
+FontHandle * loadFont(FreetypeHandle *library, const char *filename, uint32_t size);
 /// Unloads a font file
 void destroyFont(FontHandle *font);
 /// Returns the size of one EM in the font's coordinate system
